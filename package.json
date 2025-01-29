@@ -1,0 +1,14 @@
+{
+  "name": "griddler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.83.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11"
+  }
+}
