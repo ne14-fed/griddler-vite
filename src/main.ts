@@ -3,7 +3,7 @@ import { renderSvg } from "./rendering/svg";
 import "./styles.scss";
 
 window.addEventListener('load', () => {
-  const ggg = new Grid(15, 10);
+  const ggg = new Grid(25, 25);
 
   const domGrid = renderSvg(ggg);
   document.body.append(domGrid);

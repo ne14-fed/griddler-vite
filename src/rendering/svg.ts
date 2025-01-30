@@ -15,7 +15,7 @@ export const renderSvg = (grid: Grid): SVGElement => {
   $style.textContent = css;
   $svg.appendChild($style);
 
-  // Define reusable elements
+  // Define reusable rows of cells
   const $defs = createSvgElement('defs');
   const $rowDef = createSvgElement('g');
   $rowDef.setAttribute('id', 'row');
@@ -30,27 +30,42 @@ export const renderSvg = (grid: Grid): SVGElement => {
   $defs.appendChild($rowDef);
   $svg.appendChild($defs);
 
-  // Render elements
+  // Render layer 1: highlighting
+  const $layer1 = createSvgElement('g');
+  $svg.appendChild($layer1);
+
+  const $rowHilite = createSvgElement('rect') as SVGRectElement;
+  $rowHilite.setAttribute('width', `${grid.width}`);
+  $rowHilite.setAttribute('height', '1');
+  $rowHilite.setAttribute('class', 'hilite');
+  $rowHilite.setAttribute('y', '-1');
+  $layer1.appendChild($rowHilite);
+
+  const $colHilite = createSvgElement('rect') as SVGRectElement;
+  $colHilite.setAttribute('width', '1');
+  $colHilite.setAttribute('height', `${grid.height}`);
+  $colHilite.setAttribute('class', 'hilite');
+  $colHilite.setAttribute('x', '-1');
+  $layer1.appendChild($colHilite);
+
+  // Render layer 2: grid visuals
+  const $layer2 = createSvgElement('g');
+  $svg.appendChild($layer2);
   grid.rows.forEach((_, y) => {
     const $row = createSvgElement('use');
     $row.setAttribute('data-y', `${y}`);
     $row.setAttribute('href', '#row');
     $row.setAttribute('transform', `translate(0, ${y})`);
-    $svg.appendChild($row);
+    $layer2.appendChild($row);
   });
 
-  // Sliding highlighter
-  const $rowHilite = createSvgElement('rect');
-  $rowHilite.setAttribute('width', `${grid.width}`);
-  $rowHilite.setAttribute('height', '1');
-  $rowHilite.setAttribute('class', 'hilite');
-  $rowHilite.setAttribute('y', '-1');
-  $svg.appendChild($rowHilite);
-
   // Events
-  $svg.addEventListener('mouseover', (evt) => {
-    const elem = evt.target as HTMLElement;
-    $rowHilite.setAttribute('y', elem?.getAttribute('data-y') ?? '-1');
+  $layer2.addEventListener('mousemove', (event) => {
+    const eventBox = $layer2.getBoundingClientRect();
+    const x = Math.floor((event.clientX - eventBox.left) / eventBox.width * grid.width);
+    const y = Math.floor((event.clientY - eventBox.top) / eventBox.height * grid.height);
+    $colHilite.x.baseVal.value = x;
+    $rowHilite.y.baseVal.value = y;
   });
 
   return $svg;
@@ -58,7 +73,7 @@ export const renderSvg = (grid: Grid): SVGElement => {
 
 const css = `
   rect.cell {
-    fill: #fff;
+    fill: transparent;
     stroke: #000;
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
