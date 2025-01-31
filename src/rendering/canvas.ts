@@ -3,34 +3,34 @@ import { defaultStyle, StyleConfig } from "../models/render.models";
 
 export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTMLElement => {
 
+  const px = { cell: style.cellSize, gw: grid.width * style.cellSize, gh: grid.height * style.cellSize };
+
   const $root = document.createElement('div');
   $root.style.position = 'relative';
 
   const $canvasBackdrop = document.createElement('canvas');
   const ctxBackdrop = $canvasBackdrop.getContext('2d')!;
   $canvasBackdrop.style.position = 'absolute';
-  $canvasBackdrop.style.width = `${grid.width * style.cellSize}px`;
-  $canvasBackdrop.style.height = `${grid.height * style.cellSize}px`;
+  $canvasBackdrop.width = px.gw;
+  $canvasBackdrop.height = px.gh;
   $canvasBackdrop.style.backgroundColor = style.background;
   $root.appendChild($canvasBackdrop);
 
   const $canvasGridEvents = document.createElement('canvas');
   const ctxGridEvents = $canvasGridEvents.getContext('2d')!;
   $canvasGridEvents.style.position = 'absolute';
-  $canvasGridEvents.style.width = `${grid.width * style.cellSize}px`;
-  $canvasGridEvents.style.height = `${grid.height * style.cellSize}px`;
+  $canvasGridEvents.width = px.gw;
+  $canvasGridEvents.height = px.gh;
   $root.appendChild($canvasGridEvents);
 
-  let eventRect: DOMRect;
   $canvasGridEvents.addEventListener('mousemove', event => {
-    eventRect ??= $canvasGridEvents.getBoundingClientRect();
-    ctxBackdrop.clearRect(0, 0, $canvasBackdrop.width, $canvasBackdrop.height);
-    const x = Math.floor((event.clientX - eventRect.left) / style.cellSize);
-    const y = Math.floor((event.clientY - eventRect.top) / style.cellSize);
-
+    const rect = $canvasGridEvents.getBoundingClientRect();
+    ctxBackdrop.clearRect(0, 0, px.gw, px.gh);
+    const x = Math.floor((event.clientX - rect.left) / px.cell);
+    const y = Math.floor((event.clientY - rect.top) / px.cell);
     ctxBackdrop.fillStyle = style.highlight;
-    ctxBackdrop.fillRect(0, y * style.cellSize, $canvasBackdrop.width, style.cellSize);
-    ctxBackdrop.fillRect(x * style.cellSize, 0, style.cellSize, $canvasBackdrop.height);
+    ctxBackdrop.fillRect(0, y * px.cell, px.gw, px.cell);
+    ctxBackdrop.fillRect(x * px.cell, 0, px.cell, px.gh);
   });
 
   return $root;

@@ -7,5 +7,5 @@ export interface StyleConfig {
 export const defaultStyle: StyleConfig = {
   background: '#fff',
   highlight: 'yellow',
-  cellSize: 10,
+  cellSize: 20,
 };
