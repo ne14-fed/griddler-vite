@@ -6,16 +6,9 @@ export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTM
 
   const $root = document.createElement('div');
   $root.style.position = 'relative';
+  $root.style.backgroundColor = style.background;
   $root.style.width = `${px.gw}px`;
   $root.style.height = `${px.gh}px`;
-
-  // 🎨 Borders Canvas (only rendered ONCE)
-  const $canvasBorders = document.createElement('canvas');
-  const ctxBorders = $canvasBorders.getContext('2d')!;
-  $canvasBorders.width = px.gw;
-  $canvasBorders.height = px.gh;
-  $canvasBorders.style.position = 'absolute';
-  $root.appendChild($canvasBorders);
 
   // ✨ Row Highlighter (DIV)
   const $rowHighlighter = document.createElement('div');
@@ -35,16 +28,27 @@ export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTM
   $colHighlighter.style.pointerEvents = 'none';
   $root.appendChild($colHighlighter);
 
+  // 🎨 Borders Canvas (only rendered ONCE)
+  const $canvasBorders = document.createElement('canvas');
+  const ctxBorders = $canvasBorders.getContext('2d')!;
+  ctxBorders.imageSmoothingEnabled = false;
+  $canvasBorders.width = px.gw;
+  $canvasBorders.height = px.gh;
+  $canvasBorders.style.position = 'absolute';
+  $canvasBorders.style.imageRendering = 'pixelated';
+  $root.appendChild($canvasBorders);
+
   // 🎨 Render Static Borders ONCE
-  ctxBorders.strokeStyle = style.borderColor || 'black';
-  ctxBorders.lineWidth = 1;
+  ctxBorders.lineWidth = 0.5;
   for (let x = 0; x <= px.gw; x += px.cell) {
+    ctxBorders.strokeStyle = (x / px.cell) % 5 == 0 ? style.borderColor : style.borderColorMinor;
     ctxBorders.beginPath();
     ctxBorders.moveTo(x, 0);
     ctxBorders.lineTo(x, px.gh);
     ctxBorders.stroke();
   }
   for (let y = 0; y <= px.gh; y += px.cell) {
+    ctxBorders.strokeStyle = (y / px.cell) % 5 == 0 ? style.borderColor : style.borderColorMinor;
     ctxBorders.beginPath();
     ctxBorders.moveTo(0, y);
     ctxBorders.lineTo(px.gw, y);
