@@ -1,5 +1,5 @@
 import { Grid } from "../models/grid.models";
-import { defaultStyle, StyleConfig } from "../models/render.models";
+import { defaultStyle, Point, StyleConfig } from "../models/render.models";
 
 export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTMLElement => {
   const px = { cell: style.cellSize, gw: grid.width * style.cellSize, gh: grid.height * style.cellSize };
@@ -27,6 +27,17 @@ export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTM
   $colHighlighter.style.backgroundColor = style.highlight;
   $colHighlighter.style.pointerEvents = 'none';
   $root.appendChild($colHighlighter);
+
+  // ✨ Cell Lowlighter (DIV)
+  const $cellLowlighter = document.createElement('div');
+  $cellLowlighter.style.position = 'absolute';
+  $cellLowlighter.style.width = `${px.cell}px`;
+  $cellLowlighter.style.height = `${px.cell}px`;
+  $cellLowlighter.style.backgroundColor = style.background;
+  $cellLowlighter.style.border = '2px solid rgba(0, 0, 0, 0.5)';
+  $cellLowlighter.style.boxSizing = 'border-box';
+  $cellLowlighter.style.pointerEvents = 'none';
+  $root.appendChild($cellLowlighter);
 
   // 🎨 Borders Canvas (only rendered ONCE)
   const $canvasBorders = document.createElement('canvas');
@@ -56,14 +67,32 @@ export const renderCanvas = (grid: Grid, style: StyleConfig = defaultStyle): HTM
   }
 
   // 🚀 Smooth Highlighting on Mouse Move
-  $root.addEventListener('mousemove', event => {
-    const rect = $root.getBoundingClientRect();
+  $canvasBorders.addEventListener('mousemove', event => {
+    const rect = $canvasBorders.getBoundingClientRect();
     const x = Math.floor((event.clientX - rect.left) / px.cell);
     const y = Math.floor((event.clientY - rect.top) / px.cell);
 
     $rowHighlighter.style.top = `${y * px.cell}px`;
     $colHighlighter.style.left = `${x * px.cell}px`;
+    $cellLowlighter.style.top = `${y * px.cell}px`;
+    $cellLowlighter.style.left = `${x * px.cell}px`;
   });
+
+  // Suppress context menu...
+  $canvasBorders.addEventListener('contextmenu', event => event.preventDefault());
+
+  // Cell actions...
+  $canvasBorders.addEventListener('mousedown', event => {
+    console.log('mousedown @', JSON.stringify(mouseCoords(event)));
+  });
+
+  const mouseCoords = (event: MouseEvent): Point => {
+    const rect = $canvasBorders.getBoundingClientRect();
+    return {
+      x: Math.floor((event.clientX - rect.left) / px.cell),
+      y: Math.floor((event.clientY - rect.top) / px.cell),
+    };
+  }
 
   return $root;
 };

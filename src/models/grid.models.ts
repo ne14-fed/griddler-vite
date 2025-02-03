@@ -1,15 +1,20 @@
+export enum CellState {
+  BLANK,  // ◻
+  MARKED, // ▣
+  FILLED, // ◼
+}
 
 export class Line {
 
-  private readonly _labels = [];
-  get labels(): number[] { return this._labels; };
-
-  get name(): string { return `${this.type} ${this.index + 1}` };
+  public readonly name: string;
+  public readonly labels: number[] = [];
 
   constructor(
     public readonly index: number,
     public readonly length: number,
     public readonly type: 'column' | 'row') {
+
+    this.name = `${this.type} ${this.index + 1}`;
   }
 }
 
